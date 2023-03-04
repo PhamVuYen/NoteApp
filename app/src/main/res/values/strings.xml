@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">SaleApp</string>
+    <string name="my_notes">My Notes</string>
+    <string name="search_note">Search note</string>
+    <string name="note_subtitle">Note Subtitle</string>
+    <string name="note_title">note title</string>
+    <string name="type_note_hear">Type note hear..</string>
+    <string name="miscellaneous">Miscellaneous</string>
+    <string name="pick_color">Pick color</string>
+    <string name="add_image">Add image</string>
+    <string name="link">Link</string>
+    <string name="add_link">Add link</string>
+    <string name="add_url">Add url</string>
+    <string name="enter_url">Enter url</string>
+    <string name="Add_URL">Add URL</string>
+    <string name="cancel">CANCEL</string>
+    <string name="add">ADD</string>
+    <string name="ahihi">ahihi</string>
+</resources>
