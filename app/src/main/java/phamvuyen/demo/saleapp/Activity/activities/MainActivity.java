@@ -33,8 +33,8 @@ import phamvuyen.demo.saleapp.R;
 
 public class MainActivity extends AppCompatActivity implements notesListeners {
 
-    public static final int REQUEST_CODE_UPDATE_NOTE = 2;
-    public static final int REQUEST_CODE_SHOW_NOTES = 3;
+    public static final int REQUEST_CODE_UPDATE_NOTE = 1;
+    public static final int REQUEST_CODE_SHOW_NOTES = 2;
 
     private EditText inputSearch;
     private TextView textMyNotes;
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
         notesList = new ArrayList<>();
         noteAdapter = new noteAdapter(notesList, this);
         noteRecyclerView.setAdapter(noteAdapter);
-        getNote(REQUEST_CODE_SHOW_NOTES);
+        getNote(REQUEST_CODE_SHOW_NOTES, false);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
         noteRecyclerView = findViewById(R.id.noteRecyclerView);
     }
 
-    private void getNote(final int requestCode){
+    private void getNote(final int requestCode, final boolean isNoteDeleted){
 
         @SuppressLint("StaticFieldLeak")
         class getNoteTask extends AsyncTask<Void, Void, List<Note>>{
@@ -114,8 +114,14 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
                    noteRecyclerView.smoothScrollToPosition(0);
                 }else if(requestCode == REQUEST_CODE_UPDATE_NOTE){
                    notesList.remove(noteClickPosition);
-                   notesList.add(noteClickPosition, notes.get(noteClickPosition));
-                   noteAdapter.notifyItemChanged(noteClickPosition);
+//                   notesList.add(noteClickPosition, notes.get(noteClickPosition));
+//                   noteAdapter.notifyItemChanged(noteClickPosition);
+                   if(isNoteDeleted){
+                       noteAdapter.notifyItemRemoved(noteClickPosition);
+                   }else{
+                       notesList.add(noteClickPosition, notes.get(noteClickPosition));
+                       noteAdapter.notifyItemChanged(noteClickPosition);
+                   }
 
                }
             }
@@ -128,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
                 @Override
                 public void onActivityResult(ActivityResult result) {
                     if(result.getResultCode() == RESULT_OK ){
-                       getNote(REQUEST_CODE_SHOW_NOTES);
+                       getNote(REQUEST_CODE_SHOW_NOTES, false);
                     }
                 }
             }
