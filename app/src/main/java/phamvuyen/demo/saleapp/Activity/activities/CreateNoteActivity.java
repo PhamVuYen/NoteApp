@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Date;
 import java.util.Locale;
 import phamvuyen.demo.saleapp.Activity.Database.notesDatabase;
@@ -47,7 +48,6 @@ import phamvuyen.demo.saleapp.R;
 public class CreateNoteActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_STORAGE_PERMISSION = 1;
-
 
     private EditText inputNoteTitle, inputNote, inputNoteSubtitle;
     private TextView textDataTime;
@@ -82,14 +82,11 @@ public class CreateNoteActivity extends AppCompatActivity {
         imageSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-             //   Intent intent = new Intent(CreateNoteActivity.this, MainActivity.class);
                 saveNote();
-            //   intentActivityResultLauncher.launch(intent);
             }
         });
         selectNoteColor = "#333333";
-        seleceImage = "";
+       seleceImage = "";
 
         if(getIntent().getBooleanExtra("isViewOrUpdate", false)){
             alreadyAvailableNote = (Note) getIntent().getSerializableExtra("note");
@@ -292,7 +289,7 @@ public class CreateNoteActivity extends AppCompatActivity {
                         @Override
                         protected void onPostExecute(Void unused) {
                             super.onPostExecute(unused);
-                            Intent intent = new Intent();
+                           Intent intent = new Intent();
                             intent.putExtra("isNoteDeleted", true);
                             setResult(RESULT_OK, intent);
                             finish();
@@ -355,7 +352,7 @@ public class CreateNoteActivity extends AppCompatActivity {
                 Intent intent = new Intent(CreateNoteActivity.this, MainActivity.class);
                 setResult(RESULT_OK, intent);
                 finish();
-                intentActivityResultLauncher.launch(intent);
+               intentActivityResultLauncher.launch(intent);
             }
 
         }
@@ -369,7 +366,7 @@ public class CreateNoteActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         if(intent.resolveActivity(getPackageManager()) != null){
             intentActivityResultLauncher.launch(intent);
-        }
+       }
     }
 
 
@@ -377,57 +374,71 @@ public class CreateNoteActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode == REQUEST_CODE_STORAGE_PERMISSION && grantResults.length > 0){
-            selecetImage();
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                selecetImage();
+            }
         }else{
             Toast.makeText(this, "Permission Denied", Toast.LENGTH_LONG).show();
         }
     }
 
     final private ActivityResultLauncher<Intent> intentActivityResultLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if(result.getResultCode() == RESULT_OK){
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK){
+                    Intent data = result.getData();
+                    if (data != null){
+                        Uri selectedImageUri = data.getData();
+                        if (selectedImageUri != null){
+                            try {
+                                InputStream inputStream = getContentResolver().openInputStream(selectedImageUri);
+                                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                                imageNote.setImageBitmap(bitmap);
+                                imageNote.setVisibility(View.VISIBLE);
+                                seleceImage = getPathFormatUri(selectedImageUri);
+                            }catch (Exception e){
+                                Toast.makeText(CreateNoteActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     }
                 }
             }
     );
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(resultCode == RESULT_OK){
-            if(data != null){
-                Uri selectImageUri = data.getData();
-                if(selectImageUri != null){
-                    try {
-                        InputStream inputStream = getContentResolver().openInputStream(selectImageUri);
-                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                        imageNote.setImageBitmap(bitmap);
-                        imageNote.setVisibility(View.VISIBLE);
-
-                        seleceImage = getPathFromUri(selectImageUri);
-                    } catch (Exception e) {
-                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();;
-                    }
-                }
-            }
-        }
-    }
-
-    private String getPathFromUri(Uri a) {
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if(resultCode == RESULT_OK){
+//            if(data != null){
+//                Uri selectImageUri = data.getData();
+//                if(selectImageUri != null){
+//                    try {
+//                        InputStream inputStream = getContentResolver().openInputStream(selectImageUri);
+//                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+//                        imageNote.setImageBitmap(bitmap);
+//                        imageNote.setVisibility(View.VISIBLE);
+//                        seleceImage = getPathFromUri(selectImageUri);
+//                        inputStream.close();
+//                    } catch (Exception e) {
+//                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();;
+//                    }
+//                }
+//            }
+//        }
+//    }
+    private String getPathFormatUri(Uri contentUri){
         String filePath;
-        Cursor cursor = getContentResolver().query(a, null, null, null, null);
-
-        if(cursor == null){
-            filePath = a.getPath();
-        }else{
+        Cursor cursor = getContentResolver()
+                .query(contentUri,null,null,null,null);
+        if (cursor == null){
+            filePath = contentUri.getPath();
+        }else {
             cursor.moveToFirst();
-            int index = cursor.getColumnIndex("data");
+            int index = cursor.getColumnIndex("_data");
             filePath = cursor.getString(index);
             cursor.close();
         }
+
         return filePath;
     }
 

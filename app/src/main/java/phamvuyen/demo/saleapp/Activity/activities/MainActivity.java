@@ -33,8 +33,8 @@ import phamvuyen.demo.saleapp.R;
 
 public class MainActivity extends AppCompatActivity implements notesListeners {
 
-    public static final int REQUEST_CODE_UPDATE_NOTE = 1;
-    public static final int REQUEST_CODE_SHOW_NOTES = 2;
+    public static final int REQUEST_CODE_UPDATE_NOTE = 2;
+    public static final int REQUEST_CODE_SHOW_NOTES = 22;
 
     private EditText inputSearch;
     private TextView textMyNotes;
@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
         getNote(REQUEST_CODE_SHOW_NOTES, false);
     }
 
+    // Update
     @Override
     public void onNoteClicked(Note note, int position) {
 
@@ -114,8 +115,6 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
                    noteRecyclerView.smoothScrollToPosition(0);
                 }else if(requestCode == REQUEST_CODE_UPDATE_NOTE){
                    notesList.remove(noteClickPosition);
-//                   notesList.add(noteClickPosition, notes.get(noteClickPosition));
-//                   noteAdapter.notifyItemChanged(noteClickPosition);
                    if(isNoteDeleted){
                        noteAdapter.notifyItemRemoved(noteClickPosition);
                    }else{
@@ -127,16 +126,22 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
             }
         }
         new getNoteTask().execute();
+
     }
+
+
 
     final private ActivityResultLauncher<Intent> intentActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
                     if(result.getResultCode() == RESULT_OK ){
-                       getNote(REQUEST_CODE_SHOW_NOTES, false);
+                        getNote(REQUEST_CODE_SHOW_NOTES, false);
                     }
                 }
             }
+
     );
+
+
 }

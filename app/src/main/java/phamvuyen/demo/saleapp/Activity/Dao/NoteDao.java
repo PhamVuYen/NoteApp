@@ -14,7 +14,6 @@ import phamvuyen.demo.saleapp.Activity.entities.Note;
 
 @Dao
 public interface NoteDao {
-
     @Query("SELECT * FROM note ORDER BY id DESC")
     List<Note> getAllNotes();
 
@@ -23,4 +22,7 @@ public interface NoteDao {
 
     @Delete
     void deleteNote(Note note);
+
+    @Query("Delete from note")
+    void deleteAll();
 }
