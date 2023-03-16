@@ -89,7 +89,7 @@ public class CreateNoteActivity extends AppCompatActivity {
        seleceImage = "";
 
         if(getIntent().getBooleanExtra("isViewOrUpdate", false)){
-            alreadyAvailableNote = (Note) getIntent().getSerializableExtra("note");
+            alreadyAvailableNote = (Note) getIntent().getSerializableExtra("notes");
             Log.d("Update_note", alreadyAvailableNote.toString());
             setViewOrUpdateNote();
         }
@@ -289,10 +289,12 @@ public class CreateNoteActivity extends AppCompatActivity {
                         @Override
                         protected void onPostExecute(Void unused) {
                             super.onPostExecute(unused);
-                           Intent intent = new Intent();
+                           Intent intent = new Intent(CreateNoteActivity.this, MainActivity.class);
                             intent.putExtra("isNoteDeleted", true);
-                            setResult(RESULT_OK, intent);
+                            setResult(2, intent);
                             finish();
+                            intentActivityResultLauncher.launch(intent);
+
                         }
                     }
                     new DeleteNoteTask().execute();
@@ -350,7 +352,7 @@ public class CreateNoteActivity extends AppCompatActivity {
             protected void onPostExecute(Void unused) {
                 super.onPostExecute(unused);
                 Intent intent = new Intent(CreateNoteActivity.this, MainActivity.class);
-                setResult(RESULT_OK, intent);
+                setResult(22, intent);
                 finish();
                intentActivityResultLauncher.launch(intent);
             }

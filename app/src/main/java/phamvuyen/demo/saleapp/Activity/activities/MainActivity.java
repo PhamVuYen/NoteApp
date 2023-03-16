@@ -3,28 +3,20 @@ package phamvuyen.demo.saleapp.Activity.activities;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import phamvuyen.demo.saleapp.Activity.Database.notesDatabase;
 import phamvuyen.demo.saleapp.Activity.adapters.noteAdapter;
 import phamvuyen.demo.saleapp.Activity.entities.Note;
@@ -34,7 +26,7 @@ import phamvuyen.demo.saleapp.R;
 public class MainActivity extends AppCompatActivity implements notesListeners {
 
     public static final int REQUEST_CODE_UPDATE_NOTE = 2;
-    public static final int REQUEST_CODE_SHOW_NOTES = 22;
+    public static final int REQUEST_CODE_ADD_NOTES = 22;
 
     private EditText inputSearch;
     private TextView textMyNotes;
@@ -69,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
         notesList = new ArrayList<>();
         noteAdapter = new noteAdapter(notesList, this);
         noteRecyclerView.setAdapter(noteAdapter);
-        getNote(REQUEST_CODE_SHOW_NOTES, false);
+        getNote(RESULT_OK, false);
     }
 
     // Update
@@ -79,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
         noteClickPosition = position;
         Intent intent = new Intent(MainActivity.this, CreateNoteActivity.class);
         intent.putExtra("isViewOrUpdate", true);
-        intent.putExtra("note", note);
+        intent.putExtra("notes", note);
         intentActivityResultLauncher.launch(intent);
     }
 
@@ -92,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
         noteRecyclerView = findViewById(R.id.noteRecyclerView);
     }
 
-    private void getNote(final int requestCode, final boolean isNoteDeleted){
+    private void getNote(int requestCode, final boolean isNoteDeleted){
 
         @SuppressLint("StaticFieldLeak")
         class getNoteTask extends AsyncTask<Void, Void, List<Note>>{
@@ -106,10 +98,10 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
             @Override
             protected void onPostExecute(List<Note> notes) {
                 super.onPostExecute(notes);
-               if(requestCode == REQUEST_CODE_SHOW_NOTES){
+               if(requestCode == RESULT_OK){
                    notesList.addAll(notes);
                    noteAdapter.notifyDataSetChanged();
-               }else if(requestCode == 1){
+               }else if(requestCode == REQUEST_CODE_ADD_NOTES){
                    notesList.add(0, notes.get(0));
                    noteAdapter.notifyItemInserted(0);
                    noteRecyclerView.smoothScrollToPosition(0);
@@ -135,8 +127,15 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
             new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
-                    if(result.getResultCode() == RESULT_OK ){
-                        getNote(REQUEST_CODE_SHOW_NOTES, false);
+
+                    if(result.getResultCode() == REQUEST_CODE_ADD_NOTES){
+                        getNote(REQUEST_CODE_ADD_NOTES, false);
+                    } if(result.getResultCode() == REQUEST_CODE_UPDATE_NOTE){
+                        Intent intent = result.getData();
+                        if(intent != null){
+                            String data = intent.getStringExtra("isNoteDeleted");
+                            getNote(REQUEST_CODE_UPDATE_NOTE, intent.getBooleanExtra(data, false));
+                        }
                     }
                 }
             }
