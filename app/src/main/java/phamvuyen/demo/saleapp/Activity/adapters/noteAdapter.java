@@ -73,6 +73,7 @@ public class noteAdapter extends RecyclerView.Adapter<noteAdapter.noteViewHolder
             textDataTime = itemView.findViewById(R.id.textDataTime);
             layoutNote = itemView.findViewById(R.id.layoutNote);
             imageNote = itemView.findViewById(R.id.imageNoteMain);
+
         }
 
         void setNode(Note note){

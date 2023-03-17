@@ -11,6 +11,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
     private List<Note> notesList;
     private noteAdapter noteAdapter;
 
-    private int noteClickPosition = -1;
+    private int noteClickPosition = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
         noteAdapter = new noteAdapter(notesList, this);
         noteRecyclerView.setAdapter(noteAdapter);
         getNote(RESULT_OK, false);
+
+        //handleSearchNote();
     }
 
     // Update
@@ -121,7 +124,17 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
 
     }
 
-
+//    private void handleSearchNote(){
+//
+//        String strSearchNote = inputSearch.getText().toString().trim();
+//        notesList = new ArrayList<>();
+//        notesList = notesDatabase.getNotesDatabase(getApplicationContext()).noteDao().searchNote(strSearchNote);
+//        noteAdapter = new noteAdapter(notesList, this);
+//        noteRecyclerView.setAdapter(noteAdapter);
+//        getNote(RESULT_OK, false);
+//
+//
+//    }
 
     final private ActivityResultLauncher<Intent> intentActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {

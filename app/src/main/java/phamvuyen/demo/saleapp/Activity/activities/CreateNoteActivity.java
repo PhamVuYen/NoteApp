@@ -90,8 +90,14 @@ public class CreateNoteActivity extends AppCompatActivity {
 
         if(getIntent().getBooleanExtra("isViewOrUpdate", false)){
             alreadyAvailableNote = (Note) getIntent().getSerializableExtra("notes");
-            Log.d("Update_note", alreadyAvailableNote.toString());
             setViewOrUpdateNote();
+            imageSave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    updateNote();
+                }
+            });
+
         }
         intiMiscellaneous();
         setviewSubtitleColor();
@@ -103,16 +109,61 @@ public class CreateNoteActivity extends AppCompatActivity {
         inputNoteSubtitle.setText(alreadyAvailableNote.getSubtitle());
         inputNote.setText(alreadyAvailableNote.getNoteText());
         textDataTime.setText(alreadyAvailableNote.getDate_time());
-        if(alreadyAvailableNote.getNotePad() != null && alreadyAvailableNote.getNotePad().trim().isEmpty()){
+        if(alreadyAvailableNote.getNotePad() != null){
             imageNote.setImageBitmap(BitmapFactory.decodeFile(alreadyAvailableNote.getNotePad()));
             imageNote.setVisibility(View.VISIBLE);
             seleceImage = alreadyAvailableNote.getNotePad();
         }
-        if(alreadyAvailableNote.getWebLink() != null && alreadyAvailableNote.getWebLink().trim().isEmpty()){
+        if(alreadyAvailableNote.getWebLink() != null){
             textWebUrl.setText(alreadyAvailableNote.getWebLink());
             layoutWebUrl.setVisibility(View.VISIBLE);
 
         }
+    }
+
+    private void updateNote(){
+        if(inputNoteTitle.getText().toString().trim().isEmpty()){
+            Toast.makeText(this, "Note title can't be empty!", Toast.LENGTH_LONG).show();
+            return;
+        }else if(inputNoteSubtitle.getText().toString().trim().isEmpty() && inputNote.getText().toString().trim().isEmpty()){
+            Toast.makeText(this, "Note text can't be empty!", Toast.LENGTH_LONG).show();
+            return;
+        }
+        final Note note = new Note();
+        note.setTitle(inputNoteTitle.getText().toString());
+        note.setSubtitle(inputNoteSubtitle.getText().toString());
+        note.setNoteText(inputNote.getText().toString());
+        note.setDate_time(textDataTime.getText().toString());
+        note.setColor(selectNoteColor);
+        note.setNotePad(seleceImage);
+
+        if(layoutWebUrl.getVisibility() == View.VISIBLE){
+            note.setWebLink(textWebUrl.getText().toString());
+        }
+
+        if(alreadyAvailableNote != null){
+            note.setId(alreadyAvailableNote.getId());
+        }
+        @SuppressLint("StaticFieldLeak")
+        class updateNoteTask extends AsyncTask<Void, Void, Void>{
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                notesDatabase.getNotesDatabase(getApplicationContext()).noteDao().updateNote(note);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void unused) {
+                super.onPostExecute(unused);
+                Intent intent = new Intent(CreateNoteActivity.this, MainActivity.class);
+                setResult(22, intent);
+                finish();
+                intentActivityResultLauncher.launch(intent);
+            }
+
+        }
+        new updateNoteTask().execute();
     }
 
     void init(){
@@ -208,7 +259,7 @@ public class CreateNoteActivity extends AppCompatActivity {
             }
         });
 
-        if(alreadyAvailableNote != null && alreadyAvailableNote.getColor() != null && alreadyAvailableNote.getColor().trim().isEmpty()){
+        if(alreadyAvailableNote != null && alreadyAvailableNote.getColor() != null){
             switch (alreadyAvailableNote.getColor()){
                 case "#CECECE":
                      layoutMiscellaneous.findViewById(R.id.viewColor2).performClick();

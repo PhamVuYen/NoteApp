@@ -6,6 +6,7 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Update;
 
 
 import java.util.List;
@@ -22,6 +23,13 @@ public interface NoteDao {
 
     @Delete
     void deleteNote(Note note);
+
+    @Update
+    void updateNote(Note note);
+
+
+    @Query("SELECT * FROM note WHERE subtitle LIKE '%' || :subtitle || '%'")
+    List<Note> searchNote(String subtitle);
 
     @Query("Delete from note")
     void deleteAll();
