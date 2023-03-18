@@ -11,11 +11,15 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.List;
 import phamvuyen.demo.saleapp.Activity.Database.notesDatabase;
@@ -64,7 +68,24 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
         noteRecyclerView.setAdapter(noteAdapter);
         getNote(RESULT_OK, false);
 
-        //handleSearchNote();
+     inputSearch.addTextChangedListener(new TextWatcher() {
+         @Override
+         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+         }
+
+         @Override
+         public void onTextChanged(CharSequence s, int start, int before, int count) {
+            noteAdapter.cancelTimer();
+         }
+
+         @Override
+         public void afterTextChanged(Editable s) {
+            if(notesList.size() != 0){
+                noteAdapter.searchNotes(s.toString());
+            }
+         }
+     });
     }
 
     // Update
@@ -123,18 +144,6 @@ public class MainActivity extends AppCompatActivity implements notesListeners {
         new getNoteTask().execute();
 
     }
-
-//    private void handleSearchNote(){
-//
-//        String strSearchNote = inputSearch.getText().toString().trim();
-//        notesList = new ArrayList<>();
-//        notesList = notesDatabase.getNotesDatabase(getApplicationContext()).noteDao().searchNote(strSearchNote);
-//        noteAdapter = new noteAdapter(notesList, this);
-//        noteRecyclerView.setAdapter(noteAdapter);
-//        getNote(RESULT_OK, false);
-//
-//
-//    }
 
     final private ActivityResultLauncher<Intent> intentActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {

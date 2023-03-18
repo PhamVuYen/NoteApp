@@ -28,8 +28,8 @@ public interface NoteDao {
     void updateNote(Note note);
 
 
-    @Query("SELECT * FROM note WHERE subtitle LIKE '%' || :subtitle || '%'")
-    List<Note> searchNote(String subtitle);
+//    @Query("SELECT * FROM note WHERE title LIKE '%' || :titles || '%'")
+//    List<Note> searchNote(String titles);
 
     @Query("Delete from note")
     void deleteAll();
